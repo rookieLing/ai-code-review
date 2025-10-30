@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo List</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Todo List</h1>
+      <div class="controls">
+        <input id="new-todo-input" type="text" placeholder="添加待办事项..." aria-label="添加待办事项" />
+        <button id="add-todo-button" aria-label="添加">添加</button>
+      </div>
+    </header>
+
+    <section class="filters" aria-label="过滤">
+      <button data-filter="all" class="filter-button active">全部</button>
+      <button data-filter="active" class="filter-button">未完成</button>
+      <button data-filter="completed" class="filter-button">已完成</button>
+      <button id="clear-completed" class="filter-button danger">清除已完成</button>
+    </section>
+
+    <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
+
+    <footer class="footer">
+      <span id="todo-stats">0 项待办</span>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+  <noscript>需要启用 JavaScript 才能使用 Todo List。</noscript>
+</body>
+</html>
+
+
