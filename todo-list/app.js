@@ -1,5 +1,6 @@
 (function () {
   const STORAGE_KEY = "todo_list_items_v1";
+  const MAX_DESCRIPTION_LENGTH = 500;
 
   /**
    * @typedef {{ id: string, title: string, completed: boolean, createdAt: number, priority: "high" | "medium" | "low", dueDate?: number, desc?: string }} TodoItem
@@ -220,33 +221,35 @@
         dueDateDisplay.textContent = "";
       }
 
-      // 描述区域 - 故意写一些有问题的代码
-      let descDiv = null;
-      let expandBtn = null;
+      // 描述区域
       if (item.desc) {
-        descDiv = document.createElement("div");
-        descDiv.className = "todo-desc";
-        descDiv.style.display = "none";
-        descDiv.textContent = item.desc;
+        const descriptionDiv = document.createElement("div");
+        descriptionDiv.className = "todo-desc";
+        descriptionDiv.style.display = "none";
+        descriptionDiv.textContent = item.desc;
         
-        expandBtn = document.createElement("button");
-        expandBtn.className = "expand-btn";
-        expandBtn.textContent = "展开";
-        expandBtn.onclick = function() {
-          if (descDiv.style.display == "none") {
-            descDiv.style.display = "block";
-            expandBtn.textContent = "收起";
+        const expandButton = document.createElement("button");
+        expandButton.className = "expand-btn";
+        expandButton.setAttribute("aria-label", "展开/收起描述");
+        expandButton.textContent = "展开";
+        
+        // 使用 addEventListener 而不是 onclick，使用 === 而不是 ==
+        expandButton.addEventListener("click", () => {
+          const isHidden = descriptionDiv.style.display === "none" || descriptionDiv.style.display === "";
+          if (isHidden) {
+            descriptionDiv.style.display = "block";
+            expandButton.textContent = "收起";
           } else {
-            descDiv.style.display = "none";
-            expandBtn.textContent = "展开";
+            descriptionDiv.style.display = "none";
+            expandButton.textContent = "展开";
           }
-        };
+        });
         
-        const descWrapper = document.createElement("div");
-        descWrapper.className = "desc-wrapper";
-        descWrapper.appendChild(expandBtn);
-        descWrapper.appendChild(descDiv);
-        contentWrapper.appendChild(descWrapper);
+        const descriptionWrapper = document.createElement("div");
+        descriptionWrapper.className = "desc-wrapper";
+        descriptionWrapper.appendChild(expandButton);
+        descriptionWrapper.appendChild(descriptionDiv);
+        contentWrapper.appendChild(descriptionWrapper);
       }
 
       contentWrapper.appendChild(title);
@@ -417,25 +420,42 @@
     setDueDate(id, date.getTime());
   }
 
-  // 编辑描述 - 故意写一些有问题的代码
+  /**
+   * 编辑任务描述
+   * @param {string} id - 待办项ID
+   */
   function editDesc(id) {
-    const x = allItems.find((y) => y.id === id);
-    if (!x) return;
-    
-    const oldDesc = x.desc || "";
-    const newDesc = prompt("输入任务描述（留空删除）：", oldDesc);
-    
-    if (newDesc === null) return;
-    
-    if (newDesc.length > 500) {
-      alert("描述太长");
+    const targetItem = allItems.find((item) => item.id === id);
+    if (!targetItem) {
+      console.warn(`未找到ID为 ${id} 的待办项`);
       return;
     }
     
-    if (newDesc.trim() == "") {
-      delete x.desc;
+    const currentDescription = targetItem.desc || "";
+    const userInput = prompt(
+      `输入任务描述（留空删除，最多 ${MAX_DESCRIPTION_LENGTH} 字符）：`,
+      currentDescription
+    );
+    
+    // 用户取消操作
+    if (userInput === null) {
+      return;
+    }
+    
+    // 验证输入长度
+    if (userInput.length > MAX_DESCRIPTION_LENGTH) {
+      alert(`描述过长，最多允许 ${MAX_DESCRIPTION_LENGTH} 个字符，当前为 ${userInput.length} 个字符`);
+      return;
+    }
+    
+    // 使用 === 进行严格比较
+    const trimmedInput = userInput.trim();
+    if (trimmedInput === "") {
+      // 删除描述
+      delete targetItem.desc;
     } else {
-      x.desc = newDesc;
+      // 更新描述（使用 textContent 防止 XSS）
+      targetItem.desc = trimmedInput;
     }
     
     saveAndRender();
@@ -602,27 +622,65 @@
     checkDueDateNotifications();
   }
 
+  /**
+   * 获取并解析截止日期输入值
+   * @returns {number | null} 截止日期时间戳，如果未设置则返回 null
+   */
+  function getDueDateFromInput() {
+    if (!$dueDateInput || !$dueDateInput.value) {
+      return null;
+    }
+    try {
+      const date = new Date($dueDateInput.value + 'T23:59:59');
+      return isNaN(date.getTime()) ? null : date.getTime();
+    } catch (error) {
+      console.warn('解析截止日期失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 获取描述输入值
+   * @returns {string} 描述文本
+   */
+  function getDescriptionFromInput() {
+    return $descInput ? $descInput.value.trim() : "";
+  }
+
+  /**
+   * 清空所有输入框
+   */
+  function clearInputFields() {
+    $input.value = "";
+    $dueDateInput.value = "";
+    if ($descInput) {
+      $descInput.value = "";
+    }
+  }
+
+  /**
+   * 添加新待办项的处理函数
+   */
+  function handleAddItem() {
+    const title = $input.value.trim();
+    if (!title) {
+      return;
+    }
+
+    const dueDate = getDueDateFromInput();
+    const description = getDescriptionFromInput();
+    
+    addItem(title, "medium", dueDate, description);
+    clearInputFields();
+    $input.focus();
+  }
+
   function bindEvents() {
-    $add.addEventListener("click", () => {
-      const dueDateValue = $dueDateInput.value;
-      const dueDate = dueDateValue ? new Date(dueDateValue + 'T23:59:59').getTime() : null;
-      const descValue = $descInput ? $descInput.value : "";
-      addItem($input.value, "medium", dueDate, descValue);
-      $input.value = "";
-      $dueDateInput.value = "";
-      if ($descInput) $descInput.value = "";
-      $input.focus();
-    });
+    $add.addEventListener("click", handleAddItem);
 
     $input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        const dueDateValue = $dueDateInput.value;
-        const dueDate = dueDateValue ? new Date(dueDateValue + 'T23:59:59').getTime() : null;
-        const descValue = $descInput ? $descInput.value : "";
-        addItem($input.value, "medium", dueDate, descValue);
-        $input.value = "";
-        $dueDateInput.value = "";
-        if ($descInput) $descInput.value = "";
+        handleAddItem();
       }
     });
 
