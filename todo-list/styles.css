@@ -59,6 +59,27 @@ input[type="date"] {
   min-width: 160px;
 }
 
+#desc-input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+#desc-input::placeholder {
+  color: #9ca3af;
+}
+
+#desc-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.8);
   cursor: pointer;
@@ -232,6 +253,41 @@ button:hover {
 .due-date-display.overdue-text {
   color: #ef4444;
   font-weight: 500;
+}
+
+.desc-wrapper {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.expand-btn {
+  align-self: flex-start;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #374151;
+  background: #1f2937;
+  color: #9ca3af;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.expand-btn:hover {
+  background: #273245;
+  color: #60a5fa;
+}
+
+.todo-desc {
+  padding: 8px 12px;
+  background: rgba(96, 165, 250, 0.05);
+  border-left: 3px solid #60a5fa;
+  border-radius: 6px;
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .search-highlight {
