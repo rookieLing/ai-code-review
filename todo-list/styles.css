@@ -49,6 +49,27 @@ input[type="text"]::placeholder {
   color: #9ca3af;
 }
 
+input[type="date"] {
+  padding: 12px 14px;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: 14px;
+  min-width: 160px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+  cursor: pointer;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
 button {
   padding: 10px 14px;
   border: 1px solid #374151;
@@ -62,8 +83,59 @@ button:hover {
   background: #273245;
 }
 
+.search-section {
+  margin: 20px 0 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+}
+
+#search-input {
+  flex: 1;
+  padding: 12px 14px;
+  padding-right: 40px;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: 14px;
+}
+
+#search-input::placeholder {
+  color: #9ca3af;
+}
+
+#search-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.clear-search-button {
+  position: absolute;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.clear-search-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
 .filters {
-  margin: 20px 0 8px;
+  margin: 8px 0;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -112,14 +184,83 @@ button:hover {
   opacity: 0.8;
 }
 
+.todo-item.overdue {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 .todo-item.completed .title {
   text-decoration: line-through;
   color: #9ca3af;
 }
 
-.title {
+.todo-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
   overflow-wrap: anywhere;
+  cursor: pointer;
+  user-select: none;
+}
+
+.title:hover {
+  color: #60a5fa;
+}
+
+.due-date-display {
+  font-size: 12px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.due-date-display.overdue-text {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.search-highlight {
+  background: #fbbf24;
+  color: #1f2937;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.title.editing {
+  padding: 0;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 2px solid #60a5fa;
+  border-radius: 6px;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+}
+
+.edit-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
 
 .todo-actions {
@@ -134,6 +275,29 @@ button:hover {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.icon-button:hover {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+}
+
+.due-date-button {
+  font-size: 14px;
+}
+
+.due-date-button:hover {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+}
+
+.edit-button:hover {
+  color: #60a5fa;
 }
 
 .priority-select {
