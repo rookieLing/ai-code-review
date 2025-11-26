@@ -49,6 +49,27 @@ input[type="text"]::placeholder {
   color: #9ca3af;
 }
 
+input[type="date"] {
+  padding: 12px 14px;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: 14px;
+  min-width: 160px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+  cursor: pointer;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
 button {
   padding: 10px 14px;
   border: 1px solid #374151;
@@ -112,13 +133,34 @@ button:hover {
   opacity: 0.8;
 }
 
+.todo-item.overdue {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 .todo-item.completed .title {
   text-decoration: line-through;
   color: #9ca3af;
 }
 
-.title {
+.todo-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
   overflow-wrap: anywhere;
   cursor: pointer;
   user-select: none;
@@ -126,6 +168,19 @@ button:hover {
 
 .title:hover {
   color: #60a5fa;
+}
+
+.due-date-display {
+  font-size: 12px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.due-date-display.overdue-text {
+  color: #ef4444;
+  font-weight: 500;
 }
 
 .title.editing {
@@ -169,6 +224,15 @@ button:hover {
 }
 
 .icon-button:hover {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+}
+
+.due-date-button {
+  font-size: 14px;
+}
+
+.due-date-button:hover {
   background: rgba(96, 165, 250, 0.1);
   color: #60a5fa;
 }
