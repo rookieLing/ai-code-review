@@ -120,6 +120,33 @@ button:hover {
 .title {
   flex: 1;
   overflow-wrap: anywhere;
+  cursor: pointer;
+  user-select: none;
+}
+
+.title:hover {
+  color: #60a5fa;
+}
+
+.title.editing {
+  padding: 0;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 2px solid #60a5fa;
+  border-radius: 6px;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+}
+
+.edit-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
 
 .todo-actions {
@@ -134,6 +161,20 @@ button:hover {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.icon-button:hover {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+}
+
+.edit-button:hover {
+  color: #60a5fa;
 }
 
 .priority-select {

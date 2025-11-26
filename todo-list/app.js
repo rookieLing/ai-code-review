@@ -91,6 +91,7 @@
       title.className = "title";
       title.textContent = item.title;
       title.title = item.title;
+      title.addEventListener("dblclick", () => startEdit(item.id, title));
 
       const prioritySelect = document.createElement("select");
       prioritySelect.className = "priority-select";
@@ -115,6 +116,12 @@
       const actions = document.createElement("div");
       actions.className = "todo-actions";
 
+      const editBtn = document.createElement("button");
+      editBtn.className = "icon-button edit-button";
+      editBtn.setAttribute("aria-label", "编辑");
+      editBtn.textContent = "✎";
+      editBtn.addEventListener("click", () => startEdit(item.id, title));
+
       const delBtn = document.createElement("button");
       delBtn.className = "icon-button";
       delBtn.setAttribute("aria-label", "删除");
@@ -122,6 +129,7 @@
       delBtn.addEventListener("click", () => deleteItem(item.id));
 
       actions.appendChild(prioritySelect);
+      actions.appendChild(editBtn);
       actions.appendChild(delBtn);
 
       li.appendChild(checkbox);
@@ -156,6 +164,15 @@
 
   function deleteItem(id) {
     allItems = allItems.filter((x) => x.id !== id);
+    saveAndRender();
+  }
+
+  function editItem(id, newTitle) {
+    const target = allItems.find((x) => x.id === id);
+    if (!target) return;
+    const trimmed = newTitle.trim();
+    if (!trimmed) return; // 不允许空标题
+    target.title = trimmed;
     saveAndRender();
   }
 
@@ -205,6 +222,61 @@
       $sortByPriority.textContent = "按优先级排序";
     }
     render();
+  }
+
+  function startEdit(id, titleElement) {
+    const item = allItems.find((x) => x.id === id);
+    if (!item) return;
+
+    // 如果已经在编辑模式，不重复进入
+    if (titleElement.classList.contains("editing")) return;
+
+    const originalText = item.title;
+    titleElement.classList.add("editing");
+    
+    // 创建输入框
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "edit-input";
+    input.value = originalText;
+    input.setAttribute("aria-label", "编辑待办事项");
+
+    // 保存原始内容
+    let originalContent = titleElement.textContent;
+    titleElement.textContent = "";
+    titleElement.appendChild(input);
+    input.focus();
+    input.select();
+
+    // 保存编辑
+    function saveEdit() {
+      const newValue = input.value.trim();
+      if (newValue && newValue !== originalText) {
+        editItem(id, newValue);
+      } else {
+        // 如果为空或未改变，恢复原内容
+        titleElement.classList.remove("editing");
+        titleElement.textContent = originalContent;
+      }
+    }
+
+    // 取消编辑
+    function cancelEdit() {
+      titleElement.classList.remove("editing");
+      titleElement.textContent = originalContent;
+    }
+
+    // 事件处理
+    input.addEventListener("blur", saveEdit);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        input.blur(); // 触发 blur 事件保存
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        cancelEdit();
+      }
+    });
   }
 
   function bindEvents() {
