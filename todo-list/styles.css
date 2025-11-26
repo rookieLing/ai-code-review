@@ -83,8 +83,59 @@ button:hover {
   background: #273245;
 }
 
+.search-section {
+  margin: 20px 0 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+}
+
+#search-input {
+  flex: 1;
+  padding: 12px 14px;
+  padding-right: 40px;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: 14px;
+}
+
+#search-input::placeholder {
+  color: #9ca3af;
+}
+
+#search-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.clear-search-button {
+  position: absolute;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.clear-search-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
 .filters {
-  margin: 20px 0 8px;
+  margin: 8px 0;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -181,6 +232,14 @@ button:hover {
 .due-date-display.overdue-text {
   color: #ef4444;
   font-weight: 500;
+}
+
+.search-highlight {
+  background: #fbbf24;
+  color: #1f2937;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 600;
 }
 
 .title.editing {

@@ -15,6 +15,8 @@
   let sortByDueDateEnabled = false;
   /** @type {number | null} */
   let notificationCheckInterval = null;
+  /** @type {string} */
+  let searchQuery = "";
 
   const $input = document.getElementById("new-todo-input");
   const $dueDateInput = document.getElementById("due-date-input");
@@ -25,6 +27,8 @@
   const $clearCompleted = document.getElementById("clear-completed");
   const $sortByPriority = document.getElementById("sort-by-priority");
   const $sortByDueDate = document.getElementById("sort-by-due-date");
+  const $searchInput = document.getElementById("search-input");
+  const $clearSearch = document.getElementById("clear-search");
 
   function generateId() {
     return `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
@@ -90,6 +94,12 @@
         items = allItems;
     }
     
+    // 应用搜索过滤
+    if (searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+      items = items.filter((x) => x.title.toLowerCase().includes(query));
+    }
+    
     if (sortByDueDateEnabled) {
       return sortByDueDate(items);
     } else if (sortByPriorityEnabled) {
@@ -134,6 +144,35 @@
     return !isNaN(dueDate) && dueDate < Date.now();
   }
 
+  function highlightText(text, query) {
+    if (!query || !query.trim()) {
+      return text;
+    }
+    
+    const queryLower = query.trim().toLowerCase();
+    const textLower = text.toLowerCase();
+    const index = textLower.indexOf(queryLower);
+    
+    if (index === -1) {
+      return text;
+    }
+    
+    const before = text.substring(0, index);
+    const match = text.substring(index, index + query.length);
+    const after = text.substring(index + query.length);
+    
+    const span = document.createElement("span");
+    span.className = "search-highlight";
+    span.textContent = match;
+    
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(document.createTextNode(before));
+    fragment.appendChild(span);
+    fragment.appendChild(document.createTextNode(after));
+    
+    return fragment;
+  }
+
   function render() {
     const items = getFilteredItems();
     $list.innerHTML = "";
@@ -153,8 +192,20 @@
 
       const title = document.createElement("div");
       title.className = "title";
-      title.textContent = item.title;
       title.title = item.title;
+      
+      // 高亮匹配的文本
+      if (searchQuery.trim()) {
+        const highlighted = highlightText(item.title, searchQuery);
+        if (highlighted instanceof DocumentFragment) {
+          title.appendChild(highlighted);
+        } else {
+          title.textContent = item.title;
+        }
+      } else {
+        title.textContent = item.title;
+      }
+      
       title.addEventListener("dblclick", () => startEdit(item.id, title));
 
       const dueDateDisplay = document.createElement("div");
@@ -395,8 +446,8 @@
     input.value = originalText;
     input.setAttribute("aria-label", "编辑待办事项");
 
-    // 保存原始内容
-    let originalContent = titleElement.textContent;
+    // 保存原始内容（使用 item.title 而不是 textContent，因为 textContent 可能包含高亮）
+    let originalContent = item.title;
     titleElement.textContent = "";
     titleElement.appendChild(input);
     input.focus();
@@ -408,16 +459,16 @@
       if (newValue && newValue !== originalText) {
         editItem(id, newValue);
       } else {
-        // 如果为空或未改变，恢复原内容
+        // 如果为空或未改变，重新渲染以恢复高亮
         titleElement.classList.remove("editing");
-        titleElement.textContent = originalContent;
+        render();
       }
     }
 
     // 取消编辑
     function cancelEdit() {
       titleElement.classList.remove("editing");
-      titleElement.textContent = originalContent;
+      render();
     }
 
     // 事件处理
@@ -519,6 +570,44 @@
     $sortByPriority.addEventListener("click", toggleSortByPriority);
     if ($sortByDueDate) {
       $sortByDueDate.addEventListener("click", toggleSortByDueDate);
+    }
+
+    // 搜索功能
+    if ($searchInput) {
+      $searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value;
+        updateClearSearchButton();
+        render();
+      });
+
+      $searchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          clearSearch();
+        }
+      });
+    }
+
+    if ($clearSearch) {
+      $clearSearch.addEventListener("click", clearSearch);
+    }
+  }
+
+  function updateClearSearchButton() {
+    if (!$clearSearch) return;
+    if (searchQuery.trim()) {
+      $clearSearch.style.display = "inline-flex";
+    } else {
+      $clearSearch.style.display = "none";
+    }
+  }
+
+  function clearSearch() {
+    if ($searchInput) {
+      $searchInput.value = "";
+      searchQuery = "";
+      updateClearSearchButton();
+      render();
+      $searchInput.focus();
     }
   }
 
