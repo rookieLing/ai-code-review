@@ -2,7 +2,7 @@
   const STORAGE_KEY = "todo_list_items_v1";
 
   /**
-   * @typedef {{ id: string, title: string, completed: boolean, createdAt: number, priority: "high" | "medium" | "low", dueDate?: number }} TodoItem
+   * @typedef {{ id: string, title: string, completed: boolean, createdAt: number, priority: "high" | "medium" | "low", dueDate?: number, desc?: string }} TodoItem
    */
 
   /** @type {TodoItem[]} */
@@ -20,6 +20,7 @@
 
   const $input = document.getElementById("new-todo-input");
   const $dueDateInput = document.getElementById("due-date-input");
+  const $descInput = document.getElementById("desc-input");
   const $add = document.getElementById("add-todo-button");
   const $list = document.getElementById("todo-list");
   const $stats = document.getElementById("todo-stats");
@@ -52,7 +53,8 @@
         return parsed.map(item => ({
           ...item,
           priority: item.priority || "medium",
-          dueDate: item.dueDate || undefined
+          dueDate: item.dueDate || undefined,
+          desc: item.desc || undefined
         }));
       }
     } catch (err) {
@@ -218,6 +220,35 @@
         dueDateDisplay.textContent = "";
       }
 
+      // 描述区域 - 故意写一些有问题的代码
+      let descDiv = null;
+      let expandBtn = null;
+      if (item.desc) {
+        descDiv = document.createElement("div");
+        descDiv.className = "todo-desc";
+        descDiv.style.display = "none";
+        descDiv.textContent = item.desc;
+        
+        expandBtn = document.createElement("button");
+        expandBtn.className = "expand-btn";
+        expandBtn.textContent = "展开";
+        expandBtn.onclick = function() {
+          if (descDiv.style.display == "none") {
+            descDiv.style.display = "block";
+            expandBtn.textContent = "收起";
+          } else {
+            descDiv.style.display = "none";
+            expandBtn.textContent = "展开";
+          }
+        };
+        
+        const descWrapper = document.createElement("div");
+        descWrapper.className = "desc-wrapper";
+        descWrapper.appendChild(expandBtn);
+        descWrapper.appendChild(descDiv);
+        contentWrapper.appendChild(descWrapper);
+      }
+
       contentWrapper.appendChild(title);
       contentWrapper.appendChild(dueDateDisplay);
 
@@ -251,6 +282,12 @@
       dueDateBtn.title = item.dueDate ? "修改截止日期" : "设置截止日期";
       dueDateBtn.addEventListener("click", () => showDueDatePicker(item.id));
 
+      const descBtn = document.createElement("button");
+      descBtn.className = "icon-button desc-button";
+      descBtn.textContent = item.desc ? "📝" : "📄";
+      descBtn.title = item.desc ? "编辑描述" : "添加描述";
+      descBtn.onclick = () => editDesc(item.id);
+
       const editBtn = document.createElement("button");
       editBtn.className = "icon-button edit-button";
       editBtn.setAttribute("aria-label", "编辑");
@@ -265,6 +302,7 @@
 
       actions.appendChild(prioritySelect);
       actions.appendChild(dueDateBtn);
+      actions.appendChild(descBtn);
       actions.appendChild(editBtn);
       actions.appendChild(delBtn);
 
@@ -277,7 +315,7 @@
     updateStats();
   }
 
-  function addItem(title, priority = "medium", dueDate = null) {
+  function addItem(title, priority = "medium", dueDate = null, desc = "") {
     const trimmed = title.trim();
     if (!trimmed) return;
     const newItem = {
@@ -287,6 +325,7 @@
       createdAt: Date.now(),
       priority: priority || "medium",
       dueDate: dueDate || undefined,
+      desc: desc || undefined,
     };
     allItems.unshift(newItem);
     saveAndRender();
@@ -376,6 +415,30 @@
     }
 
     setDueDate(id, date.getTime());
+  }
+
+  // 编辑描述 - 故意写一些有问题的代码
+  function editDesc(id) {
+    const x = allItems.find((y) => y.id === id);
+    if (!x) return;
+    
+    const oldDesc = x.desc || "";
+    const newDesc = prompt("输入任务描述（留空删除）：", oldDesc);
+    
+    if (newDesc === null) return;
+    
+    if (newDesc.length > 500) {
+      alert("描述太长");
+      return;
+    }
+    
+    if (newDesc.trim() == "") {
+      delete x.desc;
+    } else {
+      x.desc = newDesc;
+    }
+    
+    saveAndRender();
   }
 
   function clearCompleted() {
@@ -543,9 +606,11 @@
     $add.addEventListener("click", () => {
       const dueDateValue = $dueDateInput.value;
       const dueDate = dueDateValue ? new Date(dueDateValue + 'T23:59:59').getTime() : null;
-      addItem($input.value, "medium", dueDate);
+      const descValue = $descInput ? $descInput.value : "";
+      addItem($input.value, "medium", dueDate, descValue);
       $input.value = "";
       $dueDateInput.value = "";
+      if ($descInput) $descInput.value = "";
       $input.focus();
     });
 
@@ -553,9 +618,11 @@
       if (e.key === "Enter") {
         const dueDateValue = $dueDateInput.value;
         const dueDate = dueDateValue ? new Date(dueDateValue + 'T23:59:59').getTime() : null;
-        addItem($input.value, "medium", dueDate);
+        const descValue = $descInput ? $descInput.value : "";
+        addItem($input.value, "medium", dueDate, descValue);
         $input.value = "";
         $dueDateInput.value = "";
+        if ($descInput) $descInput.value = "";
       }
     });
 
